@@ -14,13 +14,13 @@ class lector:
 		archivo.close()
 	#Obtener los terminales de las reglas:
 	def obtener_terminales(self):
-		print("OBTENIENDO TERMINALES:")
+		print("OBTENIENDO TERMINALES")
 		for regla in self.conjunto_reglas:
 			self.lt.append(self.obtener_subcadena(regla,'->'))
 	#Obtener los no terminales de las reglas:
 	def obtener_no_terminales(self):
 		l_aux=[]
-		print("OBTENIENDO NO TERMINALES:")
+		print("OBTENIENDO NO TERMINALES")
 		for regla in self.conjunto_reglas:
 			posicion=regla.find("->")
 			cad_aux=regla[posicion+2:]
@@ -44,10 +44,40 @@ class lector:
 		self.ln=nt
 	#Obtener el siguiente pedazo de cadena antes de un símbolo:
 	def obtener_subcadena(self,cadena,simbolo):
-
 		posicion=cadena.find(simbolo)
 		temporal=cadena[:posicion]
 		return temporal.replace(" ","")
+	#Cambiando las reglas a una estructura de datos:
+	def convertir_reglas(self):
+		print("CONVIRTIENDO REGLAS")
+
+		for regla in self.conjunto_reglas:
+			posicion=regla.find('->')
+
+			no_terminal=(regla[:posicion]).replace(" ","")
+			terminal=((regla[posicion+2:]).replace(" ","")).replace("\n","")
+			terminal=terminal.split("|")
+
+			conjunto_reglas=[no_terminal]
+			for regla in terminal:
+
+
+				reglas=[]
+				cadena=''
+				posicion=0
+
+				while posicion < len(regla):
+					cadena+=regla[posicion]
+					if cadena in self.ln:
+						reglas.append(cadena)
+						cadena=''
+					elif cadena in self.lt:
+						reglas.append(cadena)
+						cadena=''
+					posicion+=1
+
+				conjunto_reglas.append(reglas)
+			print(conjunto_reglas)
 
 #Desplegando las funciones para ver que furulen:
 leer_reglas=lector()
@@ -56,3 +86,5 @@ leer_reglas.obtener_terminales()
 leer_reglas.obtener_no_terminales()
 print(leer_reglas.lt)
 print(leer_reglas.ln)
+print(leer_reglas.conjunto_reglas)
+leer_reglas.convertir_reglas()
