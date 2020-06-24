@@ -1,8 +1,12 @@
 class lector:
 	#Atributos de la clase:
 	conjunto_reglas=[]
+	diccionario={}
 	lt=[] #Lista de terminales.
 	ln=[] #Lista de NO terminales.
+	#Constructor de la clase:
+	def __init__(self):
+		self.procesar_txt()
 	#Procesar el txt para obtener las reglas:
 	def obtener_reglas(self,txt):
 		archivo=open(txt,'r')
@@ -58,10 +62,8 @@ class lector:
 			no_terminal=(regla[:posicion]).replace(" ","")
 			terminal=((regla[posicion+2:]).replace(" ","")).replace("\n","")
 			terminal=terminal.split("|")
-
 			conjunto_reglas=[no_terminal]
 			for regla in terminal:
-
 
 				reglas=[]
 				cadena=''
@@ -80,13 +82,21 @@ class lector:
 				conjunto_reglas.append(reglas)
 			reglas_finales.append(conjunto_reglas)
 		self.conjunto_reglas=reglas_finales
-#Desplegando las funciones para ver que furulen:
-leer_reglas=lector()
-leer_reglas.obtener_reglas('C:\\Users\\Líquido\\github\\Creator_LR0\\Reglas.txt')
-leer_reglas.obtener_terminales()
-leer_reglas.obtener_no_terminales()
-print(leer_reglas.lt)
-print(leer_reglas.ln)
-print(leer_reglas.conjunto_reglas)
-leer_reglas.convertir_reglas()
-print(leer_reglas.conjunto_reglas)
+	#Conversión de las listas a un diccionario:
+	def conversion_diccionario(self):
+		print("CONVERSION A DICCIONARIO")
+		self.diccionario={}
+		for regla in self.conjunto_reglas:
+			li=regla[0]
+			ld=regla[1:]
+			self.diccionario.setdefault(li,ld)
+	#Funcion para llamar a las funciones en orden:
+	def procesar_txt(self):
+		self.obtener_reglas('C:\\Users\\Líquido\\github\\Creator_LR0\\Reglas.txt')
+		self.obtener_terminales()
+		self.obtener_no_terminales()
+		self.convertir_reglas()
+		return self.conversion_diccionario()
+
+#Menú.
+print(lector().diccionario)
