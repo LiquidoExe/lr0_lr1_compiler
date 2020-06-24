@@ -50,6 +50,7 @@ class lector:
 	#Cambiando las reglas a una estructura de datos:
 	def convertir_reglas(self):
 		print("CONVIRTIENDO REGLAS")
+		reglas_finales=[]
 
 		for regla in self.conjunto_reglas:
 			posicion=regla.find('->')
@@ -77,8 +78,8 @@ class lector:
 					posicion+=1
 
 				conjunto_reglas.append(reglas)
-			print(conjunto_reglas)
-
+			reglas_finales.append(conjunto_reglas)
+		self.conjunto_reglas=reglas_finales
 #Desplegando las funciones para ver que furulen:
 leer_reglas=lector()
 leer_reglas.obtener_reglas('C:\\Users\\Líquido\\github\\Creator_LR0\\Reglas.txt')
@@ -88,3 +89,4 @@ print(leer_reglas.lt)
 print(leer_reglas.ln)
 print(leer_reglas.conjunto_reglas)
 leer_reglas.convertir_reglas()
+print(leer_reglas.conjunto_reglas)
