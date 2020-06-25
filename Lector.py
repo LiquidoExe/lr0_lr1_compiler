@@ -17,21 +17,21 @@ class lector:
 
 		archivo.close()
 	#Obtener los terminales de las reglas:
-	def obtener_terminales(self):
-		print("OBTENIENDO TERMINALES")
-		for regla in self.conjunto_reglas:
-			self.lt.append(self.obtener_subcadena(regla,'->'))
-	#Obtener los no terminales de las reglas:
 	def obtener_no_terminales(self):
-		l_aux=[]
 		print("OBTENIENDO NO TERMINALES")
+		for regla in self.conjunto_reglas:
+			self.ln.append(self.obtener_subcadena(regla,'->'))
+	#Obtener los no terminales de las reglas:
+	def obtener_terminales(self):
+		l_aux=[]
+		print("OBTENIENDO TERMINALES")
 		for regla in self.conjunto_reglas:
 			posicion=regla.find("->")
 			cad_aux=regla[posicion+2:]
 			cad_aux=cad_aux.replace(" ","")
 			cad_aux=cad_aux.replace("\n","")
 			#Quitando uno por uno los terminales:
-			for terminal in self.lt:
+			for terminal in self.ln:
 				cad_aux=cad_aux.replace(terminal," ")
 			l_aux.append(cad_aux)
 		#l_aux es una lista que contiene todas las cadenas sin terminales.
@@ -45,7 +45,7 @@ class lector:
 			if elemento.split() != []:
 				nt+=elemento.split()
 
-		self.ln=nt
+		self.lt=nt
 	#Obtener el siguiente pedazo de cadena antes de un símbolo:
 	def obtener_subcadena(self,cadena,simbolo):
 		posicion=cadena.find(simbolo)
@@ -71,10 +71,10 @@ class lector:
 
 				while posicion < len(regla):
 					cadena+=regla[posicion]
-					if cadena in self.ln:
+					if cadena in self.lt:
 						reglas.append(cadena)
 						cadena=''
-					elif cadena in self.lt:
+					elif cadena in self.ln:
 						reglas.append(cadena)
 						cadena=''
 					posicion+=1
@@ -93,10 +93,37 @@ class lector:
 	#Funcion para llamar a las funciones en orden:
 	def procesar_txt(self):
 		self.obtener_reglas('C:\\Users\\Líquido\\github\\Creator_LR0\\Reglas.txt')
-		self.obtener_terminales()
 		self.obtener_no_terminales()
+		self.obtener_terminales()
 		self.convertir_reglas()
-		return self.conversion_diccionario()
+		self.conversion_diccionario()
+		self.codigo()
+	#Cambiar las letras por numeros:
+	def codigo(self):
+		c=1
+		d_cod={}
+		for terminal in self.ln:
+			d_cod.setdefault(terminal,c)
+			c+=1
+		for no_terminal in self.lt:
+			d_cod.setdefault(no_terminal,c)
+			c+=1
 
-#Menú.
-print(lector().diccionario)
+		d_aux=self.diccionario.copy()
+
+		for key in d_aux.keys():
+			for regla in d_aux.get(key):
+				for p in range(len(regla)):
+					regla[p]=d_cod.get(regla[p])
+
+		l_keys=list(d_aux.keys())
+
+		for key in l_keys:
+			d_aux[d_cod.get(key)]=d_aux.pop(key)
+
+		for p in range(len(self.lt)):
+			self.lt[p]=d_cod.get(self.lt[p])
+		for p in range(len(self.ln)):
+			self.ln[p]=d_cod.get(self.ln[p])
+		self.conjunto_reglas=d_cod
+		self.diccionario=d_aux
