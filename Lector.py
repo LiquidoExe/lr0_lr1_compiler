@@ -100,7 +100,7 @@ class lector:
 		self.codigo()
 	#Cambiar las letras por numeros:
 	def codigo(self):
-		c=1
+		c=0
 		d_cod={}
 		for terminal in self.ln:
 			d_cod.setdefault(terminal,c)
