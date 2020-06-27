@@ -82,37 +82,41 @@ class LLRO:
 				post.append(r[r.index(0)+1])
 		return post
 	#Función para utilizar ir_a en los diferentes conjuntos:
-	#pool = donde se guardan todos los conjuntos resultantes i(x)
+	#self.pool = donde se guardan todos los conjuntos resultantes i(x)
 	#p = posicion
 	#s = simbolo
 	#c = conjunto simple
-	#l_r = lista relaciones contiene los conjuntos que salieron de otro conjunto.
+	#d_r = diccionario de relaciones contiene los conjuntos que salieron de otro conjunto.
 	#r = relaciones
 	def crear(self):
-		pool=[]
-		l_r=[]
-		pool.append(self.cerradura([[0,1]]))
+		self.pool=[]
+		d_r={}
+		self.pool.append(self.cerradura([[0,1]]))
 		p=0
 
-		while p < len(pool):
-			r=[]
+		while p < len(self.pool):
 			#print("Analizando el conjunto I("+str(p)+"):")
-			for s in self.posteriores(pool[p]):
+			for s in self.posteriores(self.pool[p]):
 			#	print("\tBuscando el símbolo",s,":")
-				c=self.ir_a(pool[p],s)
-				if c not in pool:
-					pool.append(c)
-				r.append([s,pool.index(c)])
-			l_r.append(r)
+				c=self.ir_a(self.pool[p],s)
+				if c not in self.pool:
+					self.pool.append(c)
+				#print(p,s,self.pool.index(c))
+				r=(p,s)
+				d_r.setdefault(r,self.pool.index(c))
 			p+=1
 
-		#print("")
-		#for conjunto in pool:
+		#print("POOL DE CONJUNTOS:")
+		#for conjunto in self.pool:
 		#	print(conjunto)
-		print("RELACIONES ENTRE LOS CONJUNTOS:")
-		for conjunto in l_r:
-			print(conjunto)
+		print("DICCIONARIO DE DESPLAZAMIENTO:\n",d_r)
+		#for key in d_r.keys():
+		#	print(key,d_r.get(key))
+		print("TOTAL",len(d_r))
 	#Función para calcular el follow de un simbolo:
+	#s = simbolo
+	#c = conjunto
+	#p = posicion
 	def follow(self,s,resultado):
 		if s == 0 and -1 not in resultado:
 			resultado.append(-1)
@@ -128,12 +132,48 @@ class LLRO:
 
 						resultado.append(c[p+1])
 		return resultado
+	#Función para obtener las reglas que necesitan first y follow
+	#l_r = lista de reglas originales por posición
+	#p = posición
+	#c = conjunto
+	#r = regla
+	def reglas(self):
+		d=self.inv_dc()
+		l_r=self.val_list()
+		dic={}
+		#print(l_r)
+		for p in range(len(self.pool)):
+			c=self.pool[p]
+			for r in c:
+				if r[len(r)-1] == 0:
+					r_c=r.copy()
+					r_c.pop()
+					#print(p,l_r.index(r_c),self.follow(d.get(tuple(r_c)),[]))
+
+					for simb in self.follow(d.get(tuple(r_c)),[]):
+						dic.setdefault((p,simb),l_r.index(r_c))
+
+		print("DICCIONARIO DE REDUCCIÓN:\n",dic)
+		print("TOTAL",len(dic))
+	#Función que invierte las llaves y los valores del diccionario dc:
+	def inv_dc(self):
+		inv={}
+		for key in self.dc.keys():
+			for r in self.dc.get(key):
+				inv.setdefault(tuple(r),key)
+
+		return inv
+	#Fución que regresa una lista de los valores del diccionario:
+	def val_list(self):
+		l_r=[]
+		for key in self.dc.keys():
+			for l in self.dc.get(key):
+				l_r.append(l)
+		return l_r
+
 #Menú----------------------------------
 reglas=lector()
 tabla=LLRO(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
-tabla.crear()
 print(tabla.cod)
-print(tabla.follow(0,[]))
-print(tabla.follow(1,[]))
-print(tabla.follow(2,[]))
-print(tabla.follow(3,[]))
+tabla.crear()
+tabla.reglas()

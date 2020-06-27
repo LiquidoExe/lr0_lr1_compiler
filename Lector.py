@@ -18,13 +18,13 @@ class lector:
 		archivo.close()
 	#Obtener los terminales de las reglas:
 	def obtener_no_terminales(self):
-		print("OBTENIENDO NO TERMINALES")
+		#print("OBTENIENDO NO TERMINALES")
 		for regla in self.conjunto_reglas:
 			self.ln.append(self.obtener_subcadena(regla,'->'))
 	#Obtener los no terminales de las reglas:
 	def obtener_terminales(self):
 		l_aux=[]
-		print("OBTENIENDO TERMINALES")
+		#print("OBTENIENDO TERMINALES")
 		for regla in self.conjunto_reglas:
 			posicion=regla.find("->")
 			cad_aux=regla[posicion+2:]
@@ -53,7 +53,7 @@ class lector:
 		return temporal.replace(" ","")
 	#Cambiando las reglas a una estructura de datos:
 	def convertir_reglas(self):
-		print("CONVIRTIENDO REGLAS")
+		#print("CONVIRTIENDO REGLAS")
 		reglas_finales=[]
 
 		for regla in self.conjunto_reglas:
@@ -84,7 +84,7 @@ class lector:
 		self.conjunto_reglas=reglas_finales
 	#Conversión de las listas a un diccionario:
 	def conversion_diccionario(self):
-		print("CONVERSION A DICCIONARIO")
+		#print("CONVERSION A DICCIONARIO")
 		self.diccionario={}
 		for regla in self.conjunto_reglas:
 			li=regla[0]
