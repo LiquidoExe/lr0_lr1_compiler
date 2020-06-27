@@ -46,26 +46,61 @@ class LLRO:
 								c_final.append(e_c)
 				p_final+=1
 				print(c_final)
+		print("Cerradura:",c_final)
 		return c_final
 	#Función para mover el punto:
 	#c = Conjunto de reglas externo a la función.
 	#s = Símbolo para mover()
+	#p_s = posición del símbolo.
 	def mover(self,c,s):
 		c_f=[]
 		for r in c:
 			if s in r:
-				c_c=r.copy()
-				p=c_c.index(0)
-				print("0 en posición",p)
-				if p != len(c_c) -1:
-					c_c.pop(p)
-					c_c.insert(p+1,0)
-					c_f.append(c_c)
-				else:
-					c_f.append([])
+				p_s=r.index(s)
+				if r.index(s) > 0 and r.index(0) == r.index(s)-1:
+					c_c=r.copy()
+					p=c_c.index(0)
+					print("0 en posición",p)
+					if p != len(c_c) -1:
+						c_c.pop(p)
+						c_c.insert(p+1,0)
+						c_f.append(c_c)
+					else:
+						c_f.append([])
+		print("Mover:",c_f)
+		return(c_f)
+	#Funcion ir_a:
+	def ir_a(self,c,s):
+		return self.cerradura(self.mover(c,s))
+	#Función para obtener los símbolos antes del punto:
+	#c = conjunto de reglas.
+	def posteriores(self,c):
+		post=[]
+		for r in c:
+			if r.index(0) < len(r)-1 and r[r.index(0)+1] not in post:
+				post.append(r[r.index(0)+1])
+		return post
+	#Función para utilizar ir_a en los diferentes conjuntos:
+	#pool = donde se guardan todos los conjuntos resultantes i(x)
+	#p = posicion
+	#s = simbolo
+	#c = conjunto simple
+	def crear(self):
+		pool=[]
+		pool.append(self.cerradura([[0,1]]))
+		p=0
 
-		print(c_f)
+		while p < len(pool):
+			for s in self.posteriores(pool[p]):
+				c=self.ir_a(pool[p],s)
+				if c not in pool:
+					pool.append(c)
+			p+=1
+
+		print("")
+		for conjunto in pool:
+			print(conjunto)
+#Menú----------------------------------
 reglas=lector()
 tabla=LLRO(reglas.lt,reglas.ln,reglas.diccionario)
-tabla.cerradura([[0,1]])
-tabla.mover(tabla.cerradura([[0,1]]),1)
+tabla.crear()
