@@ -113,12 +113,27 @@ class LLRO:
 		for conjunto in l_r:
 			print(conjunto)
 	#Función para calcular el follow de un simbolo:
-	def follow(self,s):
-		print (self.cod)
+	def follow(self,s,resultado):
+		if s == 0 and -1 not in resultado:
+			resultado.append(-1)
+			return resultado
+		for key in self.dc.keys():
+			for c in self.dc.get(key):
+				if s in c:
+					p=c.index(s)
 
+					if p == len(c)-1:
+						self.follow(key,resultado)
+					elif c[p+1] not in resultado:
 
+						resultado.append(c[p+1])
+		return resultado
 #Menú----------------------------------
 reglas=lector()
 tabla=LLRO(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
 tabla.crear()
-tabla.follow(1)
+print(tabla.cod)
+print(tabla.follow(0,[]))
+print(tabla.follow(1,[]))
+print(tabla.follow(2,[]))
+print(tabla.follow(3,[]))
