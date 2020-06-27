@@ -92,7 +92,7 @@ class lector:
 			self.diccionario.setdefault(li,ld)
 	#Funcion para llamar a las funciones en orden:
 	def procesar_txt(self):
-		self.obtener_reglas('C:\\Users\\Líquido\\github\\Creator_LR0\\Reglas.txt')
+		self.obtener_reglas('Reglas.txt')
 		self.obtener_no_terminales()
 		self.obtener_terminales()
 		self.convertir_reglas()
