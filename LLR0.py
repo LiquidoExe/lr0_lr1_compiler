@@ -81,6 +81,25 @@ class LLRO:
 			if r.index(0) < len(r)-1 and r[r.index(0)+1] not in post:
 				post.append(r[r.index(0)+1])
 		return post
+	#Función para calcular el follow de un simbolo:
+	#s = simbolo
+	#c = conjunto
+	#p = posicion
+	def follow(self,s,resultado):
+		if s == 0 and -1 not in resultado:
+			resultado.append(-1)
+			return resultado
+		for key in self.dc.keys():
+			for c in self.dc.get(key):
+				if s in c:
+					p=c.index(s)
+
+					if p == len(c)-1:
+						self.follow(key,resultado)
+					elif c[p+1] not in resultado:
+
+						resultado.append(c[p+1])
+		return resultado
 	#Función para utilizar ir_a en los diferentes conjuntos:
 	#self.pool = donde se guardan todos los conjuntos resultantes i(x)
 	#p = posicion
@@ -113,25 +132,7 @@ class LLRO:
 		#for key in d_r.keys():
 		#	print(key,d_r.get(key))
 		print("TOTAL",len(d_r))
-	#Función para calcular el follow de un simbolo:
-	#s = simbolo
-	#c = conjunto
-	#p = posicion
-	def follow(self,s,resultado):
-		if s == 0 and -1 not in resultado:
-			resultado.append(-1)
-			return resultado
-		for key in self.dc.keys():
-			for c in self.dc.get(key):
-				if s in c:
-					p=c.index(s)
-
-					if p == len(c)-1:
-						self.follow(key,resultado)
-					elif c[p+1] not in resultado:
-
-						resultado.append(c[p+1])
-		return resultado
+		self.diccionario_desplazamiento=d_r
 	#Función para obtener las reglas que necesitan first y follow
 	#l_r = lista de reglas originales por posición
 	#p = posición
@@ -155,6 +156,7 @@ class LLRO:
 
 		print("DICCIONARIO DE REDUCCIÓN:\n",dic)
 		print("TOTAL",len(dic))
+		self.diccionario_reduccion=dic
 	#Función que invierte las llaves y los valores del diccionario dc:
 	def inv_dc(self):
 		inv={}
@@ -170,6 +172,48 @@ class LLRO:
 			for l in self.dc.get(key):
 				l_r.append(l)
 		return l_r
+	#Función para evaluar la cadena:
+	def evaluar(self,l):
+		print("CADENA",l)
+		reglas=self.val_list()
+		busqueda=self.inv_dc()
+		print("REGLAS:",reglas)
+		pila=[-1,0]
+		error=0
+
+		while not error:
+			print(pila,l)
+			s=l.pop(0)
+
+			if (pila[-1],s) in self.diccionario_desplazamiento:
+
+				pila.append(s)
+				pila.append(self.diccionario_desplazamiento.get((pila[-2],s)))
+				print("DESPLAZAMIENT0")
+			elif (pila[-1],s) in self.diccionario_reduccion:
+				print("REDUCCION")
+				if (pila[-1],s) == (1,-1):
+					print("Cadena aceptada.")
+					return
+				pos=self.diccionario_reduccion.get((pila[-1],s))
+				cardinalidad=len(reglas[pos])*2
+
+				for n in range(cardinalidad):
+					pila.pop()
+
+				pila.append(busqueda.get(tuple(reglas[pos])))
+
+				if (pila[-2],pila[-1]) in self.diccionario_desplazamiento:
+					pila.append(self.diccionario_desplazamiento.get((pila[-2],pila[-1])))
+
+				elif (pila[-2],pila[-1]) in self.diccionario_reduccion:
+					pila.append(self.diccionario_reduccion.get((pila[-2],pila[-1])))
+
+				l.insert(0,s)
+			else:
+				print("ERROR")
+				return
+
 
 #Menú----------------------------------
 reglas=lector()
@@ -177,3 +221,5 @@ tabla=LLRO(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
 print(tabla.cod)
 tabla.crear()
 tabla.reglas()
+r=reglas.convertir_cadena("(num+num-num)*num+num/num$")
+tabla.evaluar(r)

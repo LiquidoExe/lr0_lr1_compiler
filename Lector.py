@@ -127,3 +127,15 @@ class lector:
 			self.ln[p]=d_cod.get(self.ln[p])
 		self.conjunto_reglas=d_cod
 		self.diccionario=d_aux
+	def convertir_cadena(self,cadena):
+		s=[]
+		aux=""
+		for p in range(len(cadena)):
+			aux+=cadena[p]
+			if aux in self.conjunto_reglas:
+				s.append(self.conjunto_reglas.get(aux))
+				aux=""
+		s.append(-1)
+
+		print(s)
+		return s
