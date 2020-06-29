@@ -109,6 +109,8 @@ class lector:
 			d_cod.setdefault(no_terminal,c)
 			c+=1
 
+		d_cod.setdefault('$',-1)
+
 		d_aux=self.diccionario.copy()
 
 		for key in d_aux.keys():
@@ -132,6 +134,7 @@ class lector:
 		aux=""
 		for p in range(len(cadena)):
 			aux+=cadena[p]
+			#print(aux,s)
 			if aux in self.conjunto_reglas:
 				s.append(self.conjunto_reglas.get(aux))
 				aux=""
