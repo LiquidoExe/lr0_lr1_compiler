@@ -62,7 +62,7 @@ class LR1:
 	def follow(self,s,res):
 		print("Follow de",s,res)
 		#Si se busca el follow del primer símbolo de la gramática se agrega '$'
-		if s == 0 and -1 not in res: 
+		if s == 0 and -1 not in res:
 			res.append(-1)
 
 		for k in self.dc.keys():
@@ -77,9 +77,55 @@ class LR1:
 					elif p < len(r)-1:
 						print("Símbolo delante:",r[p+1])
 						self.first(r[p+1],res)
+	#Función mover:
+	#c = conjunto
+	#r = regla
+	#s = simbolo
+	#c_f = conjunto final
+	#p_s = posicion de s
+	#c_r = copia de regla
+	def mover(self,c,s):
+		#print("moviendo",c,"con",s)
+		c_f=[]
+		for r in c:
+			c_f.append(self.a_mover(r,s))
+
+		print("Resultado:",c_f)
+		return(c_f)
+	#Función auxiliar de mover():
+	#c_r = copia de la regla
+	#p = posición
+	#r = regla
+	#s = simbolo
+	def a_mover(self,r,s):
+		try:
+			p=r.index(0)
+		except ValueError:
+			return r.copy()
+
+		if p < len(r)-1 and r[p+1] == s:
+			print("ingreso",r)
+			c_r=r.copy()
+			c_r.remove(0)
+			c_r.insert(p+1,0)
+			print("regreso",c_r)
+			return c_r
+		else:
+			return r.copy()
+
+	#Devolver todas las posiciones de un símbolo:
+	#r = regla
+	#s = símbolo
+	#c_r = conjunto resultado
+	def buscar_s(self,r,s):
+		c_r=[]
+		for p in range(len(r)):
+			if s == r[p]:
+				c_r.append(p)
+		return c_r
+
 #Menú:
 reglas=lector()
 tabla=LR1(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
-r=[]
-tabla.follow(2,r)
-print(r)
+r=[[0,1,2,3],[1,2,0,3],[1,2,3,0]]
+print(tabla.mover(r,4))
