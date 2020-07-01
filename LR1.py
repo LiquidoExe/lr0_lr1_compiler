@@ -88,7 +88,8 @@ class LR1:
 		#print("moviendo",c,"con",s)
 		c_f=[]
 		for r in c:
-			c_f.append(self.a_mover(r,s))
+			if self.a_mover(r,s) != None:
+				c_f.append(self.a_mover(r,s))
 
 		print("Resultado:",c_f)
 		return(c_f)
@@ -111,7 +112,7 @@ class LR1:
 			print("regreso",c_r)
 			return c_r
 		else:
-			return r.copy()
+			return None
 
 	#Devolver todas las posiciones de un símbolo:
 	#r = regla
@@ -128,4 +129,4 @@ class LR1:
 reglas=lector()
 tabla=LR1(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
 r=[[0,1,2,3],[1,2,0,3],[1,2,3,0]]
-print(tabla.mover(r,4))
+print(tabla.mover(r,3))
