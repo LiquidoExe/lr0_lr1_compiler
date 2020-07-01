@@ -55,10 +55,12 @@ class LLRO:
 	#s = Símbolo para mover()
 	#p_s = posición del símbolo.
 	def mover(self,c,s):
+		#print("moviendo",c,"con",s)
 		c_f=[]
 		for r in c:
 			if s in r:
 				p_s=r.index(s)
+				#print("entro",r.index(0),r.index(s))
 				if r.index(s) > 0 and r.index(0) == r.index(s)-1:
 					c_c=r.copy()
 					p=c_c.index(0)
@@ -69,7 +71,7 @@ class LLRO:
 						c_f.append(c_c)
 					else:
 						c_f.append([])
-		#print("Mover:",c_f)
+		#print("Resultado:",c_f)
 		return(c_f)
 	#Funcion ir_a:
 	def ir_a(self,c,s):
@@ -136,9 +138,9 @@ class LLRO:
 				print("[",end="")
 				for p in range(len(regla)):
 					if regla[p] == 0:
-						print(". ",end="")
+						print(".",end="")
 					else:
-						print(self.inv_cod.get(regla[p]), end=" ")
+						print(self.inv_cod.get(regla[p]), end="")
 				print("]",end="")
 			print("]")
 
@@ -170,7 +172,7 @@ class LLRO:
 					for simb in self.follow(d.get(tuple(r_c)),[]):
 						dic.setdefault((p,simb),l_r.index(r_c))
 
-		print("DICCIONARIO DE REDUCCIÓN:\n",dic)
+		print("DICCIONARIO DE REDUCCIÓN:\n")
 		for key in dic.keys():
 			print("[",key[0],self.inv_cod.get(key[1]),dic.get(key),"]",end="\t")
 		print("TOTAL",len(dic))
@@ -203,16 +205,15 @@ class LLRO:
 		while not error:
 			self.p_operaciones(pila)
 			self.p_lista(l)
-			print("")
 			s=l.pop(0)
 
 			if (pila[-1],s) in self.diccionario_desplazamiento:
-
+				print("DESPLAZAMIENTO",self.diccionario_desplazamiento.get((pila[-1],s)))
 				pila.append(s)
 				pila.append(self.diccionario_desplazamiento.get((pila[-2],s)))
-				print("DESPLAZAMIENT0")
+
 			elif (pila[-1],s) in self.diccionario_reduccion:
-				print("REDUCCION")
+				print("REDUCCION",self.diccionario_reduccion.get((pila[-1],s)))
 				if (pila[-1],s) == (1,-1):
 					print("Cadena aceptada.")
 					return
@@ -253,5 +254,5 @@ tabla=LLRO(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
 print(tabla.cod)
 tabla.crear()
 tabla.reglas()
-r=reglas.convertir_cadena("(sors)+^s*^s?")
+r=reglas.convertir_cadena("(aora)*&a+")
 tabla.evaluar(r)
