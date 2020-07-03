@@ -90,7 +90,6 @@ class LR1:
 		for r in c:
 			if self.a_mover(r,s) != None:
 				c_f.append(self.a_mover(r,s))
-
 		print("Resultado:",c_f)
 		return(c_f)
 	#Función auxiliar de mover():
@@ -113,7 +112,6 @@ class LR1:
 			return c_r
 		else:
 			return None
-
 	#Devolver todas las posiciones de un símbolo:
 	#r = regla
 	#s = símbolo
@@ -124,9 +122,49 @@ class LR1:
 			if s == r[p]:
 				c_r.append(p)
 		return c_r
+	#Función cerradura() se obtienen dos elementos en una lista
+	#[[Elementos de la cerradura][Elementos de los first]]
+	#C_E = Conjunto de reglas externo a la función.
+	def cerradura(self,c_e):
+		c_final=[]
+		p_final=0
+		#Para cada conjunto en c_e
+		for tupla in c_e:
+			if tupla not in c_final:
+				c_final.append(tupla)
+			#Iteraciones sobre el número de estados.
+			while p_final < len(c_final):
+				c=c_final[p_final]
+				#c=[[estados],[firsts]]
+				estados=c[0]
+				firsts=c[1]
+				p=estados.index(0)
+				#print("Lista",c,"en posicion",p)
+				if p < len(estados)-1:
+					if p < len(estados)-2:
+						n_firsts=[]
+						self.first(estados[p+2],n_firsts)
+					else:
+						n_firsts=firsts.copy()
+
+					if estados[p+1] in self.ln:
+						for r in self.dc.get(estados[p+1]):
+							r_c=r.copy()
+							r_c.insert(0,0)
+
+							if [r_c,n_firsts] not in c_final:
+								c_final.append([r_c,n_firsts])
+
+				p_final+=1
+				#print(c_final)
+		#print("\t\tCerradura:",c_final)
+		return c_final
+		#Auxiliar de cerradura:
+		# r = regla
+
 
 #Menú:
 reglas=lector()
 tabla=LR1(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
-r=[[0,1,2,3],[1,2,0,3],[1,2,3,0]]
-print(tabla.mover(r,3))
+r=[[[0,1],[-1]]]
+print(tabla.cerradura(r))
