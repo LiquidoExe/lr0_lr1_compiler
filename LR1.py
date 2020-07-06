@@ -87,10 +87,10 @@ class LR1:
 	def mover(self,c,s):
 		#print("moviendo",c,"con",s)
 		c_f=[]
-		for tupla in c:
-			r=tupla[0]
+		for triada in c:
+			r=triada[0]
 			if self.a_mover(r,s) != None:
-				c_f.append([self.a_mover(r,s),tupla[1].copy()])
+				c_f.append([self.a_mover(r,s),triada[1].copy(),triada[2]])
 		#print("Resultado:",c_f)
 		return(c_f)
 	#Función auxiliar de mover():
@@ -129,16 +129,18 @@ class LR1:
 	def cerradura(self,c_e):
 		c_final=[]
 		p_final=0
+
 		#Para cada conjunto en c_e
-		for tupla in c_e:
-			if tupla not in c_final:
-				c_final.append(tupla)
+		for triada in c_e:
+			if triada not in c_final:
+				c_final.append(triada)
 			#Iteraciones sobre el número de estados.
 			while p_final < len(c_final):
 				c=c_final[p_final]
-				#c=[[estados],[firsts]]
+				#c=[[estados],[firsts],[origen]]
 				estados=c[0]
 				firsts=c[1]
+				origen=c[2]
 				p=estados.index(0)
 				#print("Lista",c,"en posicion",p)
 				if p < len(estados)-1:
@@ -152,9 +154,17 @@ class LR1:
 						for r in self.dc.get(estados[p+1]):
 							r_c=r.copy()
 							r_c.insert(0,0)
+							o_c=estados[p+1]
+							ya_agregada=0
 
-							if [r_c,n_firsts] not in c_final:
-								c_final.append([r_c,n_firsts])
+							for x in c_final:
+								if r_c == x[0] and o_c == x[2]:
+									x[1]+=n_firsts
+									x[1]=list(set(x[1]))
+									ya_agregada=1
+
+							if ya_agregada == 0 and [r_c,n_firsts,o_c] not in c_final:
+								c_final.append([r_c,n_firsts,o_c])
 
 				p_final+=1
 				#print(c_final)
@@ -175,35 +185,44 @@ class LR1:
 	def crear(self):
 		self.pool=[]
 		d_r={}
-		self.pool.append(self.cerradura([[[0,1],[-1]]]))
+		self.pool.append(self.cerradura([[[0,1],[-1],0]]))
 		p=0
 
 		while p < len(self.pool):
 			print("Analizando el conjunto I("+str(p)+"):")
 			for s in self.posteriores(self.pool[p]):
-				print("\tBuscando el símbolo",s,":")
+				#print("Buscando el símbolo",s,":")
 				c=self.ir_a(self.pool[p],s)
 				if c not in self.pool:
 					self.pool.append(c)
-				print(p,"\t",self.inv_cod.get(s),"\t",self.pool.index(c))
+				print("\t",p,"\t",self.inv_cod.get(s),"\t",self.pool.index(c))
 				r=(p,s)
 				d_r.setdefault(r,self.pool.index(c))
 			p+=1
 
+		for p in range(len( self.pool)):
+			print("Conjunto:",p,":",self.pool[p])
+
+
+		z=0
 		print(self.pool)
 		print("POOL DE CONJUNTOS:")
 		for conjunto in self.pool:
-			print("[",end="")
+			print(z,"[",end="")
 			for regla in conjunto:
-				print("[",end="")
+				print("["+self.inv_cod.get(regla[2])+"-",end="")
 				for p in range(len(regla[0])):
 					if regla[0][p] == 0:
 						print(".",end="")
 					else:
 						print(self.inv_cod.get(regla[0][p]), end="")
+				print("{",end="")
+				for p in range(len(regla[1])):
+					print(self.inv_cod.get(regla[1][p]), end=",")
+				print("}",end="")
 				print("]",end="")
 			print("]")
-
+			z+=1
 		print("DICCIONARIO DE DESPLAZAMIENTO:")
 		for key in d_r.keys():
 			print("[",key[0],self.inv_cod.get(key[1]),d_r.get(key),"]",end="\t")
@@ -213,8 +232,8 @@ class LR1:
 	#c = conjunto de reglas.
 	def posteriores(self,c):
 		post=[]
-		for tupla in c:
-			r=tupla[0]
+		for triada in c:
+			r=triada[0]
 			if r.index(0) < len(r)-1 and r[r.index(0)+1] not in post:
 				post.append(r[r.index(0)+1])
 		return post
@@ -224,23 +243,22 @@ class LR1:
 	#c = conjunto
 	#r = regla
 	def reglas(self):
-		d=self.inv_dc()
 		l_r=self.val_list()
 		dic={}
 		#print(l_r)
 		for p in range(len(self.pool)):
 			c=self.pool[p]
-			for tupla in c:
-				r=tupla[0]
+			for triada in c:
+				r=triada[0]
 				if r[len(r)-1] == 0:
 					r_c=r.copy()
 					r_c.pop()
-					print(p,l_r.index(r_c),end=" ")
+					#print(p,l_r.index(r_c),end=" ")
 					#self.p_lista(self.follow(d.get(tuple(r_c)),[]))
-					print("")
+					#print("")
 
-					for simb in tupla[1]:
-						dic.setdefault((p,simb),l_r.index(r_c))
+					for simb in triada[1]:
+						dic.setdefault((p,simb),l_r.index([triada[2],r_c]))
 
 		print("DICCIONARIO DE REDUCCIÓN:\n")
 		for key in dic.keys():
@@ -248,26 +266,17 @@ class LR1:
 		print("TOTAL",len(dic))
 		print("TOTAL",len(dic))
 		self.diccionario_reduccion=dic
-	#Función que invierte las llaves y los valores del diccionario dc:
-	def inv_dc(self):
-		inv={}
-		for key in self.dc.keys():
-			for r in self.dc.get(key):
-				inv.setdefault(tuple(r),key)
-
-		return inv
 	#Fución que regresa una lista de los valores del diccionario:
 	def val_list(self):
 		l_r=[]
 		for key in self.dc.keys():
 			for l in self.dc.get(key):
-				l_r.append(l)
+				l_r.append([key,l])
 		return l_r
 	#Función para evaluar la cadena:
 	def evaluar(self,l):
 		print("CADENA",l)
 		reglas=self.val_list()
-		busqueda=self.inv_dc()
 		print("REGLAS:",reglas)
 		pila=[-1,0]
 		error=0
@@ -288,12 +297,12 @@ class LR1:
 					print("Cadena aceptada.")
 					return
 				pos=self.diccionario_reduccion.get((pila[-1],s))
-				cardinalidad=len(reglas[pos])*2
+				cardinalidad=len(reglas[pos][1])*2
 
 				for n in range(cardinalidad):
 					pila.pop()
 
-				pila.append(busqueda.get(tuple(reglas[pos])))
+				pila.append(reglas[pos][0])
 
 				if (pila[-2],pila[-1]) in self.diccionario_desplazamiento:
 					pila.append(self.diccionario_desplazamiento.get((pila[-2],pila[-1])))
@@ -322,5 +331,5 @@ reglas=lector()
 tabla=LR1(reglas.lt,reglas.ln,reglas.diccionario,reglas.conjunto_reglas)
 tabla.crear()
 tabla.reglas()
-r=reglas.convertir_cadena("aadad")
+r=reglas.convertir_cadena("(aora)*&a+")
 tabla.evaluar(r)

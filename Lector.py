@@ -28,7 +28,7 @@ class lector:
 		for regla in self.conjunto_reglas:
 			posicion=regla.find("->")
 			cad_aux=regla[posicion+2:]
-			cad_aux=cad_aux.replace(" ","")
+			#cad_aux=cad_aux.replace(" ","")
 			cad_aux=cad_aux.replace("\n","")
 			#Quitando uno por uno los terminales:
 			for terminal in self.ln:
@@ -45,6 +45,7 @@ class lector:
 			if elemento.split() != []:
 				nt+=elemento.split()
 
+		nt=list(set(nt))
 		self.lt=nt
 	#Obtener el siguiente pedazo de cadena antes de un símbolo:
 	def obtener_subcadena(self,cadena,simbolo):
